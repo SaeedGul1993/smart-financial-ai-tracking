@@ -1,0 +1,10 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const recurringExpense_controller_1 = require("./recurringExpense.controller");
+const auth_middleware_1 = require("../../middleware/auth.middleware");
+const recurringExpenseRoutes = (0, express_1.Router)();
+recurringExpenseRoutes.get("/all-recurring-expenses", auth_middleware_1.authMiddleware, recurringExpense_controller_1.getRecurringExpensesController);
+recurringExpenseRoutes.patch("/pause-recurring-expense/:id", auth_middleware_1.authMiddleware, recurringExpense_controller_1.pauseRecurringExpenseController);
+recurringExpenseRoutes.patch("/resume-recurring-expense/:id", auth_middleware_1.authMiddleware, recurringExpense_controller_1.resumeRecurringExpenseController);
+exports.default = recurringExpenseRoutes;

@@ -1,0 +1,13 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const ai_controller_1 = require("./ai.controller");
+const auth_middleware_1 = require("../../middleware/auth.middleware");
+const validation_middleware_1 = require("../../middleware/validation.middleware");
+const ai_validation_1 = require("./ai.validation");
+const aiRoutes = (0, express_1.Router)();
+aiRoutes.get("/analyze-spending", auth_middleware_1.authMiddleware, ai_controller_1.analyzeSpendingController);
+aiRoutes.get("/get-financial-health", auth_middleware_1.authMiddleware, ai_controller_1.getFinancialHealthController);
+aiRoutes.post("/refresh-spending-analyze", auth_middleware_1.authMiddleware, ai_controller_1.refreshSpendingAnalysisController);
+aiRoutes.post("/ai-chat", auth_middleware_1.authMiddleware, (0, validation_middleware_1.validationPipe)(ai_validation_1.aiChatSchema), ai_controller_1.chatWithAIController);
+exports.default = aiRoutes;

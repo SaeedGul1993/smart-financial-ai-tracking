@@ -1,0 +1,15 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const income_controller_1 = require("./income.controller");
+const validation_middleware_1 = require("../../middleware/validation.middleware");
+const income_validation_1 = require("./income.validation");
+const auth_middleware_1 = require("../../middleware/auth.middleware");
+const incomeRoutes = (0, express_1.Router)();
+incomeRoutes.post("/create", (0, validation_middleware_1.validationPipe)(income_validation_1.createIncomeSchema), auth_middleware_1.authMiddleware, income_controller_1.createIncomeController);
+incomeRoutes.get("/all-income", auth_middleware_1.authMiddleware, income_controller_1.getIncomesController);
+incomeRoutes.get("/income/:id", auth_middleware_1.authMiddleware, income_controller_1.getIncomeByIdController);
+incomeRoutes.patch("/update-income", (0, validation_middleware_1.validationPipe)(income_validation_1.updateIncomeSchema), auth_middleware_1.authMiddleware, income_controller_1.updateIncomeController);
+incomeRoutes.delete("/delete-income", (0, validation_middleware_1.validationPipe)(income_validation_1.deleteIncomeSchema), auth_middleware_1.authMiddleware, income_controller_1.deleteIncomeController);
+incomeRoutes.get("/income-summary", auth_middleware_1.authMiddleware, income_controller_1.getIncomeAnalyticsController);
+exports.default = incomeRoutes;

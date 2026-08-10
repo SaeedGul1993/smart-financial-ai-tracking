@@ -1,0 +1,14 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const expense_controller_1 = require("./expense.controller");
+const expense_validation_1 = require("./expense.validation");
+const auth_middleware_1 = require("../../middleware/auth.middleware");
+const validation_middleware_1 = require("../../middleware/validation.middleware");
+const expenseRoutes = (0, express_1.Router)();
+expenseRoutes.post("/create", (0, validation_middleware_1.validationPipe)(expense_validation_1.createExpenseSchema), auth_middleware_1.authMiddleware, expense_controller_1.createExpenseController);
+expenseRoutes.get("/all-expenses", (0, validation_middleware_1.validationPipe)(expense_validation_1.expenseFilterSchema), auth_middleware_1.authMiddleware, expense_controller_1.getExpensesController);
+expenseRoutes.patch("/update", (0, validation_middleware_1.validationPipe)(expense_validation_1.updateExpenseSchema), auth_middleware_1.authMiddleware, expense_controller_1.updateExpenseController);
+expenseRoutes.delete("/delete", (0, validation_middleware_1.validationPipe)(expense_validation_1.deleteExpenseSchema), auth_middleware_1.authMiddleware, expense_controller_1.deleteExpenseController);
+expenseRoutes.get("/summary-analytics", auth_middleware_1.authMiddleware, expense_controller_1.getExpenseSummaryAnalyticsController);
+exports.default = expenseRoutes;

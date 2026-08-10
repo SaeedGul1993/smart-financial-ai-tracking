@@ -1,0 +1,13 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const budget_controller_1 = require("./budget.controller");
+const auth_middleware_1 = require("../../middleware/auth.middleware");
+const validation_middleware_1 = require("../../middleware/validation.middleware");
+const budget_validation_1 = require("./budget.validation");
+const budgetRoutes = (0, express_1.Router)();
+budgetRoutes.post("/create", (0, validation_middleware_1.validationPipe)(budget_validation_1.createBudgetSchema), auth_middleware_1.authMiddleware, budget_controller_1.createBudgetController);
+budgetRoutes.get("/all-budgets", auth_middleware_1.authMiddleware, budget_controller_1.getBudgetsController);
+budgetRoutes.patch("/update", (0, validation_middleware_1.validationPipe)(budget_validation_1.updateBudgetSchema), auth_middleware_1.authMiddleware, budget_controller_1.updateBudgetController);
+budgetRoutes.delete("/delete", (0, validation_middleware_1.validationPipe)(budget_validation_1.deleteBudgetSchema), auth_middleware_1.authMiddleware, budget_controller_1.deleteBudgetController);
+exports.default = budgetRoutes;
