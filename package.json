@@ -8,6 +8,7 @@
     "build": "prisma generate && tsc",
     "start": "node dist/server.js",
     "worker": "tsx watch src/workers/budget-alert.worker.ts",
+    "worker:prod": "node dist/workers/budget-alert.worker.js",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate deploy"
   },
