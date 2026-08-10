@@ -1,0 +1,224 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id                String             @id @default(uuid())
+  name              String
+  email             String             @unique
+  password          String
+  currency          String             @default("PKR")
+  monthlyIncome     Decimal?
+  categories        Category[]
+  expense           Expense[]
+  income            Income[]
+  budget            Budget[]
+  budgetAlert       BudgetAlert[]
+  recurringExpenses RecurringExpense[]
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  aiInsights        AIInsight[]
+  aiConversations   AIConversation[]
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+model Category {
+  id                String             @id @default(uuid())
+  slug              String             @unique
+  name              String             @unique
+  isDefault         Boolean            @default(false)
+  type              CategoryType
+  userId            String?
+  user              User?              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expense           Expense[]
+  budget            Budget[]
+  recurringExpenses RecurringExpense[]
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+
+  @@index([userId])
+  @@index([type])
+}
+
+model Expense {
+  id                 String            @id @default(uuid())
+  amount             Decimal
+  date               DateTime
+  description        String?
+  paymentMethod      PaymentMethod
+  receiptUrl         String?
+  userId             String
+  recurringExpenseId String?
+  recurringExpense   RecurringExpense? @relation(fields: [recurringExpenseId], references: [id])
+  user               User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  categoryId         String
+  category           Category          @relation(fields: [categoryId], references: [id])
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+
+  @@unique([recurringExpenseId, date])
+  @@index([userId])
+  @@index([categoryId])
+  @@index([date])
+}
+
+model RecurringExpense {
+  id            String             @id @default(uuid())
+  userId        String
+  categoryId    String
+  amount        Float
+  description   String?
+  paymentMethod PaymentMethod
+  frequency     RecurringFrequency
+  startDate     DateTime
+  nextRunDate   DateTime
+  endDate       DateTime?
+  isActive      Boolean            @default(true)
+  user          User               @relation(fields: [userId], references: [id])
+  category      Category           @relation(fields: [categoryId], references: [id])
+  expenses      Expense[]
+  createdAt     DateTime           @default(now())
+}
+
+model Income {
+  id          String       @id @default(uuid())
+  amount      Decimal
+  description String?
+  date        DateTime
+  source      IncomeSource
+  userId      String
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model Budget {
+  id          String        @id @default(uuid())
+  amount      Decimal
+  month       Int
+  year        Int
+  categoryId  String
+  category    Category      @relation(fields: [categoryId], references: [id])
+  userId      String
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  budgetAlert BudgetAlert[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@unique([userId, categoryId, month, year])
+}
+
+model BudgetAlert {
+  id         String          @id @default(uuid())
+  userId     String
+  budgetId   String
+  type       BudgetAlertType
+  percentage Float
+  message    String
+
+  emailSent   Boolean   @default(false)
+  emailSentAt DateTime?
+
+  pushSent   Boolean   @default(false)
+  pushSentAt DateTime?
+
+  createdAt          DateTime  @default(now())
+  lastReminderSentAt DateTime?
+  user               User      @relation(fields: [userId], references: [id])
+  budget             Budget    @relation(fields: [budgetId], references: [id])
+}
+
+model AIInsight {
+  id        String   @id @default(uuid())
+
+  userId    String
+
+  period    String
+  result    Json
+
+  model     String?
+  user User @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  expiresAt DateTime?
+
+  @@index([userId])
+  @@index([userId, period])
+}
+
+model AIConversation {
+  id        String        @id @default(uuid())
+  userId    String
+  role      AIMessageRole
+  message   String
+  createdAt DateTime      @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([createdAt])
+}
+
+enum AIMessageRole {
+  USER
+  ASSISTANT
+}
+
+enum AIInsightType {
+  SPENDING_ANALYSIS
+  SAVING_TIP
+  BUDGET_WARNING
+  FINANCIAL_HEALTH
+}
+
+enum BudgetAlertType {
+  WARNING
+  EXCEEDED
+}
+
+enum IncomeSource {
+  SALARY
+  BUSINESS
+  FREELANCE
+  INVESTMENT
+  GIFT
+  OTHER
+}
+
+enum CategoryType {
+  INCOME
+  EXPENSE
+}
+
+enum RecurringFrequency {
+  DAILY
+  WEEKLY
+  MONTHLY
+  YEARLY
+}
+
+enum PaymentMethod {
+  CASH
+  CARD
+  BANK_TRANSFER
+  WALLET
+}
