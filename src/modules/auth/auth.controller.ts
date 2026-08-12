@@ -4,6 +4,7 @@ import {
   logoutService,
   refreshTokenService,
   registerService,
+  updateFcmTokenService,
 } from "./auth.service";
 import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
@@ -47,6 +48,18 @@ export const logoutController = catchAsync(
     sendResponse(res, 200, {
       success: true,
       message: "Logout successful",
+      data: result,
+    });
+  },
+);
+
+export const updateFcmTokenController = catchAsync(
+  async (req: Request, res: Response) => {
+    const { userId } = (req as any).user;
+    const result = await updateFcmTokenService(userId, req.body.fcmToken);
+    sendResponse(res, 200, {
+      success: true,
+      message: "Fcm Token Updated successful",
       data: result,
     });
   },

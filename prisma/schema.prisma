@@ -19,6 +19,7 @@ model User {
   email             String             @unique
   password          String
   currency          String             @default("PKR")
+  fcmToken          String?
   monthlyIncome     Decimal?
   categories        Category[]
   expense           Expense[]
@@ -30,6 +31,8 @@ model User {
   updatedAt         DateTime           @updatedAt
   aiInsights        AIInsight[]
   aiConversations   AIConversation[]
+  notifications Notification[]
+
 }
 
 model RefreshToken {
@@ -176,6 +179,33 @@ model AIConversation {
 
   @@index([userId])
   @@index([createdAt])
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  title     String
+  message   String
+
+  type      NotificationType
+  budgetType BudgetAlertType
+
+  isRead    Boolean  @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId, isRead])
+  @@index([userId, createdAt])
+}
+
+enum NotificationType {
+  BUDGET_ALERT
+  EXPENSE
+  SYSTEM
 }
 
 enum AIMessageRole {

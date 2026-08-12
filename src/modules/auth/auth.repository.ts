@@ -12,6 +12,10 @@ export class AuthRepository {
     return await prisma.user.findUnique({ where: { email } });
   }
 
+  async findById(userId: string) {
+    return await prisma.user.findUnique({ where: { id: userId } });
+  }
+
   async create(data: createUserInput) {
     return await prisma.user.create({ data });
   }
@@ -36,5 +40,11 @@ export class AuthRepository {
   }
   async deleteRefreshToken(token: string) {
     return await prisma.refreshToken.delete({ where: { token } });
+  }
+  async updateFcmToken(token: string, userId: string) {
+    return await prisma.user.update({
+      where: { id: userId },
+      data: { fcmToken: token },
+    });
   }
 }

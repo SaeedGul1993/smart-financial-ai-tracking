@@ -4,6 +4,7 @@ import {
   deleteExpenseController,
   getExpensesController,
   getExpenseSummaryAnalyticsController,
+  scanReceiptController,
   updateExpenseController,
 } from "./expense.controller";
 import {
@@ -14,6 +15,8 @@ import {
 } from "./expense.validation";
 import { authMiddleware } from "../../middleware/auth.middleware";
 import { validationPipe } from "../../middleware/validation.middleware";
+import { upload } from "../../middleware/upload.middleware";
+import { receiptScanRateLimiter } from "../../middleware/rateLimiter";
 
 const expenseRoutes = Router();
 
@@ -49,6 +52,14 @@ expenseRoutes.get(
   "/summary-analytics",
   authMiddleware,
   getExpenseSummaryAnalyticsController,
+);
+
+expenseRoutes.post(
+  "/scan-receipt",
+  receiptScanRateLimiter,
+  authMiddleware,
+  upload.single("receipt"),
+  scanReceiptController,
 );
 
 export default expenseRoutes;

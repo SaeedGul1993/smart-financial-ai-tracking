@@ -7,8 +7,10 @@ import {
   deleteExpenseService,
   getExpensesService,
   getExpenseSummaryAnalyticsService,
+  scanReceiptService,
   updateExpenseService,
 } from "./expense.service";
+import { AppError } from "../../errors/appError";
 
 export const createExpenseController = catchAsync(
   async (req: Request, res: Response) => {
@@ -74,6 +76,21 @@ export const getExpenseSummaryAnalyticsController = catchAsync(
     sendResponse(res, HTTP_STATUS.OK, {
       success: true,
       message: "Expense summary analytics fetched successfully",
+      data: result,
+    });
+  },
+);
+
+export const scanReceiptController = catchAsync(
+  async (req: Request, res: Response) => {
+    const { userId } = (req as any).user;
+    const file = req.file;
+    if (!file)
+      throw new AppError(HTTP_STATUS.BAD_REQUEST, "Receipt image is required");
+    const result = await scanReceiptService(userId, file);
+    sendResponse(res, HTTP_STATUS.OK, {
+      success: true,
+      message: "Receipt scanned successfully",
       data: result,
     });
   },

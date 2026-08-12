@@ -50,4 +50,16 @@ export class CategoryRepository {
       },
     });
   }
+
+  async findAllByUserId(userId: string) {
+    return prisma.category.findMany({
+      where: {
+        OR: [{ isDefault: true }, { userId }],
+      },
+      select: {
+        id: true,
+        name: true,
+      },
+    });
+  }
 }

@@ -4,6 +4,8 @@ import {
   PaymentMethod,
   RecurringFrequency,
 } from "../../generated/prisma/enums";
+import { CloudinaryService } from "../../services/cloudinary.service";
+import { ReceiptAIService } from "../../services/receipt-ai.service";
 import { calculateNextRunDate } from "../../utils/nextRunDate";
 import { invalidateSpendingAnalysisCache } from "../ai/ai.service";
 import { checkBudgetAlert } from "../budgetAlert/budgetAlert.service";
@@ -20,6 +22,8 @@ import {
 const expenseRepository = new ExpenseRepository();
 const categoryRepository = new CategoryRepository();
 const recurringExpenseRepository = new RecurringExpenseRepository();
+const receiptAiService = new ReceiptAIService();
+const cloudinaryService = new CloudinaryService();
 
 export const createExpenseService = async (
   userId: string,
@@ -176,4 +180,30 @@ export const getExpenseSummaryAnalyticsService = async (
       };
     });
   }
+};
+
+export const scanReceiptService = async (
+  userId: string,
+  file: Express.Multer.File,
+) => {
+  const receiptUrl = await cloudinaryService.uploadPicture(file.buffer);
+  const categories = await categoryRepository.findAllByUserId(userId);
+  const extracted = await receiptAiService.extractReceipt(
+    receiptUrl.secure_url,
+    categories,
+  );
+  let verifyCategoryId = extracted.categoryId;
+  if (verifyCategoryId) {
+    let check = categories?.some(
+      (category) => category.id === verifyCategoryId,
+    );
+    if (!check) {
+      verifyCategoryId = null;
+    }
+  }
+  return {
+    ...extracted,
+    categoryId: verifyCategoryId,
+    receiptUrl: receiptUrl.secure_url,
+  };
 };

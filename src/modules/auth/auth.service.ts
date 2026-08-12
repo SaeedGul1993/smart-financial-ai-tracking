@@ -93,3 +93,9 @@ export const logoutService = async (data: z.infer<typeof logoutSchema>) => {
   await authRepository.deleteRefreshToken(refreshToken);
   return null;
 };
+
+export const updateFcmTokenService = async (userId: string, token: string) => {
+  const user = await authRepository.findById(userId);
+  if (!user) throw new AppError(HTTP_STATUS.NOT_FOUND, "User not found");
+  return await authRepository.updateFcmToken(token, userId);
+};

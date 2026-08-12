@@ -9,12 +9,16 @@ import incomeRoutes from "./modules/income/income.route";
 import budgetRoutes from "./modules/budget/budget.route";
 import recurringExpenseRoutes from "./modules/recurringExpense/recurringExpense.route";
 import aiRoutes from "./modules/ai/ai.route";
+import helmet from "helmet";
+import { globalRateLimiter } from "./middleware/rateLimiter";
 
 const app = express();
-
+app.set("trust proxy", 1);
+app.use(helmet());
 app.use(cors());
+app.use(globalRateLimiter);
 app.use(express.json());
-
+app.use(express.urlencoded({ extended: true }));
 app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/category", categoryRoutes);

@@ -95,6 +95,12 @@ export class BudgetAlertRepository {
       data: { emailSent: true, emailSentAt: new Date() },
     });
   }
+  async markPushSent(budgetAlertId: string) {
+    return await prisma.budgetAlert.update({
+      where: { id: budgetAlertId },
+      data: { pushSent: true, pushSentAt: new Date() },
+    });
+  }
 
   async findAlert(budgetId: string, type: BudgetAlertType) {
     return prisma.budgetAlert.findFirst({
